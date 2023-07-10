@@ -13,6 +13,10 @@ const updateContact = (req, res)=>{
 
 const createContact = (req, res)=>{
     console.log("Request body is ", req.body)
+    if(!req.body.name || !req.body.email || !req.body.phone){
+        res.status(400)
+        throw new Error('all fields are mandatory')
+    }
     res.status(201).json({message:"create A Contact"})
 }
 
