@@ -15,19 +15,27 @@ const getContacts = asyncHandler(async(req, res)=>{
 
 const getContact = asyncHandler(async(req, res)=>{
     const contact = await Contact.findById(req.params.id);
-    if(contact) {
-        res.status(200).json(contact)
-    }else{
+    if(!contact) {
         res.status(404);
          throw new Error("contact not found")
     }
+    if(req.user.id!==contact.user_id.toString()){
+        res.status(403)
+        throw new Error('User not have permission for operation ')
+}
+res.status(200).json(contact)
 })
 
 const updateContact = asyncHandler(async(req, res)=>{
     const contact = await Contact.findById(req.params.id);
+
     if(!contact){
         res.status(404);
         throw new Error("contact not found")
+    }
+    else if(req.user.id!==contact.user_id.toString()){
+                res.status(403)
+                throw new Error('User not have permission for operation ')
     }
     const updatedContact = await Contact.findByIdAndUpdate(req.params.id, req.body,{new:true})
 
@@ -57,6 +65,10 @@ const deleteContact = asyncHandler(async(req, res)=>{
         res.status(404);
         throw new Error("contact not found")
     }
+    else if(req.user.id!==contact.user_id.toString()){
+        res.status(403)
+        throw new Error('User not have permission for operation ')
+}
     await contact.deleteOne()
     res.status(202).json({message:"contact removed"})
 })
