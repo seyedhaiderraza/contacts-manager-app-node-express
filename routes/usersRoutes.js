@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-
+const validateToken=require('../middleware/validationHandler')
 const {
     registerUserController,
      loginUserController,
@@ -13,6 +13,6 @@ router.route("/register").post(registerUserController)
 router.route("/login").post(loginUserController)
 
 
-router.route("/current").post(currentUserController)
+router.route("/current").get(validateToken,currentUserController)
 
 module.exports = router

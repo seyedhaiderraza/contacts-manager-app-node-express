@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler")
 const User = require('../models/userModel')
 const bcrypt = require('bcrypt')
-
+const jwt = require('jsonwebtoken')
 const registerUserController=asyncHandler(async(req,res)=>{
    /*
     1. assert if request fields are valid
@@ -40,18 +40,39 @@ const registerUserController=asyncHandler(async(req,res)=>{
 })
 
 
-const loginUserController=asyncHandler((req,res)=>{
-
-    res.json({
-        message: "Login user"
-    })
+const loginUserController=asyncHandler(async(req,res)=>{
+    const {email,password} = req.body;
+    if(!email || !password){
+        res.status(400)
+        throw new Error("fields values invalid")
+    }
+    
+    
+    const user = await User.findOne({email})
+   const passwordValid=await bcrypt.compare(password,user?.password)
+   if(passwordValid){
+    const jwtToken = jwt.sign({
+        user:{
+            username:user.username,
+            email:user.email,
+            id: user.id
+        }
+    },
+    process.env.SECRET,
+    {expiresIn:"1h"}
+        );
+        res.status(200).json({
+            "authentication_token":jwtToken
+        })
+   }else{
+    res.status(401)
+    throw new Error("fields values invalid")
+   }
 })
 
 
 const currentUserController=asyncHandler((req,res)=>{
-    res.json({
-        message: "Current user"
-    })
+    res.status(200).json(req.user)
 })
 
 module.exports = {registerUserController, loginUserController, currentUserController}
