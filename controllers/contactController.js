@@ -3,12 +3,15 @@ const Contact = require("../models/contactModel")
 
 
 
-const getContacts = async(req, res)=>{
-    const contacts = await  Contact.find()
+const getContacts = asyncHandler(async(req, res)=>{
+    const contacts = await  Contact.find({user_id:req.user.id})
    // res.status(200).json({message:"get All Contacts"})
-   
+   if(contacts.length===0){
+    res.status(404);
+    throw new Error("no contacts found for the user")
+   }
     res.status(200).json(contacts)
-}
+})
 
 const getContact = asyncHandler(async(req, res)=>{
     const contact = await Contact.findById(req.params.id);
@@ -40,7 +43,10 @@ const createContact = asyncHandler(async(req, res)=>{
         throw new Error('all fields are mandatory')
     }
     const contact= await Contact.create({
-        name, email,phone
+        name, 
+        email,
+        phone,
+        user_id:req.user.id
      })
     res.status(201).json(contact)
 })

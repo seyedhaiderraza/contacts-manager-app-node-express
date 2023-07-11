@@ -1,5 +1,7 @@
 const express = require('express')
 const router = express.Router()
+const validateToken = require('../middleware/validationHandler')
+
 const {
     getContact,
     getContacts,
@@ -8,7 +10,7 @@ const {
     deleteContact
 
 } = require ('../controllers/contactController')
-
+router.use(validateToken)
 router.route("/").get(getContacts)
 
 router.route("/:id").get(getContact)
